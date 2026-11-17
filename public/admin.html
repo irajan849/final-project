@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoyageCraft | Enterprise Admin Dashboard</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .clean-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+        }
+        .clean-sidebar {
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+        }
+        .clean-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex selection:bg-indigo-600 selection:text-white overflow-x-hidden">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-[150] flex flex-col gap-3 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity duration-300"></div>
+
+    <!-- ================= 1. SIDEBAR (RESPONSIVE & CLEAN WHITE) ================= -->
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-72 clean-sidebar z-50 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 shadow-sm">
+        <!-- Sidebar Header -->
+        <div>
+            <div class="p-6 pb-4 border-b border-slate-100 flex items-center justify-between">
+                <a href="/admin" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white flex items-center justify-center text-xl shadow-md shadow-indigo-600/20 group-hover:rotate-12 transition-transform">
+                        <i class="fa-solid fa-compass"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-lg font-black tracking-tight text-slate-900">VoyageCraft</span>
+                            <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[9px] font-black uppercase px-1.5 py-0.2 rounded-md">ADMIN</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Management Portal</span>
+                    </div>
+                </a>
+                <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-slate-700 p-2 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="p-4 space-y-1.5">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-2 pb-1">
+                    Main Menu
+                </div>
+
+                <button data-tab="tab-overview" class="sidebar-link active w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-white bg-indigo-600 shadow-md shadow-indigo-600/20 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-chart-line text-sm w-4"></i>
+                        <span>Dashboard Overview</span>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                </button>
+
+                <button data-tab="tab-bookings" class="sidebar-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/70 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-ticket text-sm w-4"></i>
+                        <span>Bookings Management</span>
+                    </div>
+                    <span id="sideBookingsBadge" class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+                </button>
+
+                <button data-tab="tab-packages" class="sidebar-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/70 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-map-location-dot text-sm w-4"></i>
+                        <span>Tour Packages (CRUD)</span>
+                    </div>
+                    <span id="sidePackagesBadge" class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+                </button>
+
+                <button data-tab="tab-customers" class="sidebar-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/70 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-users text-sm w-4"></i>
+                        <span>Customers & Travelers</span>
+                    </div>
+                    <span id="sideCustomersBadge" class="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+                </button>
+
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-5 pb-1">
+                    System & Links
+                </div>
+
+                <button data-tab="tab-system" class="sidebar-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/70 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-server text-sm w-4"></i>
+                        <span>System Health & DB</span>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </button>
+
+                <a href="/" target="_blank" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/70 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-sm w-4"></i>
+                        <span>Public Travel Website</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-mono">/</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar Bottom Admin Profile -->
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between bg-white p-3 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+                        A
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <span>Admin Superuser</span>
+                        </div>
+                        <span class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> MongoDB Live
+                        </span>
+                    </div>
+                </div>
+                <a href="/" title="Return to Website" class="text-slate-400 hover:text-indigo-600 p-2 rounded-lg hover:bg-slate-50 transition">
+                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ================= 2. MAIN CONTENT AREA ================= -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <!-- Top Header Bar (Clean White) -->
+        <header class="clean-header sticky top-0 z-30 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4 shadow-sm">
+            <!-- Left: Mobile Menu Toggle & Title -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button id="openSidebarBtn" class="lg:hidden text-slate-600 hover:text-indigo-600 p-2 rounded-xl bg-white border border-slate-200 shadow-sm">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div>
+                    <h1 id="pageHeading" class="text-base sm:text-lg font-black text-slate-900 tracking-tight">Dashboard Overview</h1>
+                    <div class="text-[11px] text-slate-500 hidden sm:flex items-center gap-1.5 font-medium">
+                        <span>VoyageCraft</span> &bull;
+                        <span class="text-indigo-600 font-semibold">Central Admin Control</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Controls: Global Search, Export, Add Package & Refresh -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Global Quick Search -->
+                <div class="relative hidden md:block w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="globalSearchInput" placeholder="Quick search records..." class="w-full bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition">
+                </div>
+
+                <!-- Export CSV -->
+                <button id="exportCsvBtn" class="bg-white hover:bg-slate-50 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs border border-slate-200 transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="Export all bookings">
+                    <i class="fa-solid fa-file-arrow-down text-emerald-600 text-xs"></i>
+                    <span class="hidden sm:inline">Export CSV</span>
+                </button>
+
+                <!-- Add Package CTA -->
+                <button id="headerAddPackageBtn" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-sm shadow-indigo-600/20">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span class="hidden sm:inline">Add Package</span>
+                </button>
+
+                <!-- Sync / Refresh -->
+                <button id="refreshDataBtn" class="bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 p-2 rounded-xl border border-slate-200 transition cursor-pointer shadow-sm" title="Refresh Live Data">
+                    <i class="fa-solid fa-rotate-right text-xs" id="refreshIcon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Viewport -->
+        <main class="flex-1 p-4 sm:p-8 max-w-7xl mx-auto w-full space-y-8">
+
+            <!-- ================= TAB 1: OVERVIEW & ANALYTICS ================= -->
+            <div id="tab-overview" class="tab-content space-y-8">
+                <!-- 4 KPI Stat Cards (White Clean Cards) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- Stat 1: Total Revenue -->
+                    <div class="clean-card p-6 rounded-3xl relative overflow-hidden group hover:border-indigo-300 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Gross Revenue</span>
+                            <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg border border-emerald-100">
+                                <i class="fa-solid fa-indian-rupee-sign"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-black text-slate-900 tracking-tight" id="kpiRevenue">₹0</div>
+                        <div class="mt-3 flex items-center text-xs text-emerald-600 font-semibold gap-1.5">
+                            <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-200">+18.4%</span>
+                            <span class="text-slate-400 text-[11px]">from bookings</span>
+                        </div>
+                    </div>
+
+                    <!-- Stat 2: Total Bookings -->
+                    <div class="clean-card p-6 rounded-3xl relative overflow-hidden group hover:border-indigo-300 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Bookings</span>
+                            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg border border-indigo-100">
+                                <i class="fa-solid fa-ticket"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-black text-slate-900 tracking-tight" id="kpiBookings">0</div>
+                        <div class="mt-3 flex items-center text-xs text-indigo-600 font-semibold gap-1.5">
+                            <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-indigo-200">+12.1%</span>
+                            <span class="text-slate-400 text-[11px]">saved in MongoDB</span>
+                        </div>
+                    </div>
+
+                    <!-- Stat 3: Active Packages -->
+                    <div class="clean-card p-6 rounded-3xl relative overflow-hidden group hover:border-indigo-300 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Destinations</span>
+                            <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg border border-amber-100">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-black text-slate-900 tracking-tight" id="kpiPackages">0</div>
+                        <div class="mt-3 flex items-center text-xs text-amber-600 font-semibold gap-1.5">
+                            <span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-200">Published</span>
+                            <span class="text-slate-400 text-[11px]">on public website</span>
+                        </div>
+                    </div>
+
+                    <!-- Stat 4: Customers -->
+                    <div class="clean-card p-6 rounded-3xl relative overflow-hidden group hover:border-indigo-300 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Travelers</span>
+                            <div class="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg border border-purple-100">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-black text-slate-900 tracking-tight" id="kpiCustomers">0</div>
+                        <div class="mt-3 flex items-center text-xs text-purple-600 font-semibold gap-1.5">
+                            <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-purple-200">Verified</span>
+                            <span class="text-slate-400 text-[11px]">unique customers</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Interactive Charts (White Background) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Chart 1: Revenue Line Graph (8 cols) -->
+                    <div class="lg:col-span-8 clean-card p-6 sm:p-7 rounded-3xl">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                            <div>
+                                <h3 class="text-base font-black text-slate-900">Revenue & Bookings Trajectory</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Interactive financial timeline synced with database</p>
+                            </div>
+                            <!-- Timeframe Toggles -->
+                            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                                <button onclick="updateChartTimeframe('7d')" class="chart-timeframe active px-2.5 py-1 text-[11px] font-bold rounded-lg text-white bg-indigo-600 transition shadow-sm">7D</button>
+                                <button onclick="updateChartTimeframe('30d')" class="chart-timeframe px-2.5 py-1 text-[11px] font-bold rounded-lg text-slate-600 hover:text-slate-900 transition">30D</button>
+                                <button onclick="updateChartTimeframe('1y')" class="chart-timeframe px-2.5 py-1 text-[11px] font-bold rounded-lg text-slate-600 hover:text-slate-900 transition">1Y</button>
+                            </div>
+                        </div>
+                        <div class="h-64 sm:h-72">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Category Donut (4 cols) -->
+                    <div class="lg:col-span-4 clean-card p-6 sm:p-7 rounded-3xl flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-base font-black text-slate-900">Category Distribution</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Active packages across travel themes</p>
+                        </div>
+                        <div class="h-56 my-auto flex items-center justify-center">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 text-center text-[11px] text-slate-400">
+                            Auto-syncs when packages are updated
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Bookings Table Preview -->
+                <div class="clean-card p-6 sm:p-7 rounded-3xl">
+                    <div class="flex justify-between items-center mb-5">
+                        <div>
+                            <h3 class="text-base font-black text-slate-900">Latest Booking Entries</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Most recent reservations submitted from public website</p>
+                        </div>
+                        <button onclick="switchTab('tab-bookings')" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition flex items-center gap-1.5 cursor-pointer">
+                            <span>Manage All Bookings</span>
+                            <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                                <tr>
+                                    <th class="py-3 px-3 font-bold">Booking ID</th>
+                                    <th class="py-3 px-3 font-bold">Customer</th>
+                                    <th class="py-3 px-3 font-bold">Package</th>
+                                    <th class="py-3 px-3 font-bold">Travel Date</th>
+                                    <th class="py-3 px-3 font-bold">Total Paid</th>
+                                    <th class="py-3 px-3 font-bold">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentBookingsTbody" class="divide-y divide-slate-100 font-medium">
+                                <tr>
+                                    <td colspan="6" class="text-center py-6 text-slate-400">Loading recent reservations...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 2: BOOKINGS MANAGEMENT ================= -->
+            <div id="tab-bookings" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900">All Bookings & Reservations</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Review, filter, inspect, and update live booking statuses</p>
+                    </div>
+                </div>
+
+                <!-- Filters & Search Toolbar -->
+                <div class="clean-card p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="relative w-full sm:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="bookingsSearchInput" placeholder="Search by customer, booking ID, or package..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs focus:ring-2 focus:ring-indigo-500/30 focus:outline-none text-slate-800">
+                    </div>
+
+                    <!-- Status Filter Tabs -->
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto overflow-x-auto">
+                        <button data-status="All" class="booking-filter-btn active bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer shadow-sm">All</button>
+                        <button data-status="Confirmed" class="booking-filter-btn text-slate-600 hover:text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">Confirmed</button>
+                        <button data-status="Pending" class="booking-filter-btn text-slate-600 hover:text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">Pending</button>
+                        <button data-status="Cancelled" class="booking-filter-btn text-slate-600 hover:text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">Cancelled</button>
+                    </div>
+                </div>
+
+                <!-- Full Bookings Table -->
+                <div class="clean-card rounded-3xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50/90 text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                                <tr>
+                                    <th class="py-4 px-4 font-bold">Booking ID</th>
+                                    <th class="py-4 px-4 font-bold">Customer Name</th>
+                                    <th class="py-4 px-4 font-bold">Package Name</th>
+                                    <th class="py-4 px-4 font-bold">Travel Date</th>
+                                    <th class="py-4 px-4 font-bold">Travelers</th>
+                                    <th class="py-4 px-4 font-bold">Total Price</th>
+                                    <th class="py-4 px-4 font-bold">Status</th>
+                                    <th class="py-4 px-4 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allBookingsTbody" class="divide-y divide-slate-100 font-medium">
+                                <tr>
+                                    <td colspan="8" class="text-center py-10 text-slate-400">Loading bookings from MongoDB Atlas...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 3: PACKAGES MANAGEMENT (CRUD) ================= -->
+            <div id="tab-packages" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900">Tour Packages Catalog</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Create, edit, and delete travel destinations in real-time</p>
+                    </div>
+                    <button onclick="openCreatePackageModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Create New Destination</span>
+                    </button>
+                </div>
+
+                <!-- Packages Grid -->
+                <div id="adminPackagesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- ================= TAB 4: CUSTOMERS & USERS ================= -->
+            <div id="tab-customers" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-black text-slate-900">Registered Travelers & Customers</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Aggregated customer spending, repeat trips, and loyalty tiers</p>
+                </div>
+
+                <!-- Customers Table -->
+                <div class="clean-card rounded-3xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50/90 text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                                <tr>
+                                    <th class="py-4 px-4 font-bold">Customer Name</th>
+                                    <th class="py-4 px-4 font-bold">Contact Email</th>
+                                    <th class="py-4 px-4 font-bold">Total Trips</th>
+                                    <th class="py-4 px-4 font-bold">Total Spend</th>
+                                    <th class="py-4 px-4 font-bold">Latest Booking</th>
+                                    <th class="py-4 px-4 font-bold">Loyalty Tier</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTbody" class="divide-y divide-slate-100 font-medium">
+                                <tr>
+                                    <td colspan="6" class="text-center py-10 text-slate-400">Loading customer profiles...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 5: SYSTEM HEALTH & SETTINGS ================= -->
+            <div id="tab-system" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-black text-slate-900">System Diagnostics & Environment</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Real-time health of database, servers, and configurations</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- DB Diagnostic -->
+                    <div class="clean-card p-6 rounded-3xl space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg border border-emerald-100">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">MongoDB Atlas Connection</h4>
+                                <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Connected (State: 1 / Ready)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-2xl text-xs space-y-2 border border-slate-200 font-mono text-slate-600">
+                            <div class="flex justify-between"><span>Cluster:</span><span class="text-slate-900 font-semibold">travelsite.rue0eyu.mongodb.net</span></div>
+                            <div class="flex justify-between"><span>DNS Bypass:</span><span class="text-emerald-600 font-semibold">8.8.8.8, 1.1.1.1 (Active)</span></div>
+                            <div class="flex justify-between"><span>Collections:</span><span class="text-indigo-600 font-semibold">destinations, bookings</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Auth Diagnostic -->
+                    <div class="clean-card p-6 rounded-3xl space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg border border-amber-100">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Firebase Authentication</h4>
+                                <span class="text-xs text-amber-600 font-semibold">Google Sign-In Provider Active</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-2xl text-xs space-y-2 border border-slate-200 font-mono text-slate-600">
+                            <div class="flex justify-between"><span>Project ID:</span><span class="text-slate-900 font-semibold">voyagecraft-rajan-2026</span></div>
+                            <div class="flex justify-between"><span>Auth Domain:</span><span class="text-slate-900 font-semibold">voyagecraft-rajan-2026.firebaseapp.com</span></div>
+                            <div class="flex justify-between"><span>Hosting:</span><span class="text-indigo-600 font-semibold">public/ (Ready)</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================= 3. MODALS (WHITE BACKGROUND) ================= -->
+
+    <!-- A. Package Create & Edit Modal (Live Image Preview) -->
+    <div id="packageModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <!-- Close Button -->
+            <button id="closePackageModal" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition cursor-pointer">
+                &times;
+            </button>
+
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div>
+                    <h3 id="packageModalTitle" class="text-xl font-black text-slate-900">Create Tour Package</h3>
+                    <p class="text-xs text-slate-500">Saved directly to MongoDB destinations collection</p>
+                </div>
+            </div>
+
+            <form id="packageForm" class="space-y-4">
+                <input type="hidden" id="editPackageId">
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Package Title / Destination</label>
+                    <input type="text" id="pkgName" required placeholder="e.g. Rishikesh River Rafting & Camping" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Category</label>
+                        <select id="pkgCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer">
+                            <option value="Mountains">Mountains</option>
+                            <option value="Beaches">Beaches</option>
+                            <option value="Heritage">Heritage</option>
+                            <option value="International">International</option>
+                            <option value="Adventure">Adventure</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Duration</label>
+                        <input type="text" id="pkgDuration" required placeholder="e.g. 4 Days / 3 Nights" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Starting Price (₹)</label>
+                    <input type="number" id="pkgPrice" required placeholder="e.g. 19500" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Image URL</label>
+                    <input type="url" id="pkgImage" required placeholder="https://images.unsplash.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    
+                    <!-- Live Image Preview Box -->
+                    <div class="mt-2 relative h-32 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center text-xs text-slate-400">
+                        <img id="pkgImagePreview" src="" alt="Preview" class="w-full h-full object-cover hidden">
+                        <span id="pkgImagePlaceholder">Live Image Preview will appear here</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Highlights / Description</label>
+                    <textarea id="pkgHighlights" rows="2" required placeholder="Key attractions and inclusions..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <button type="submit" id="savePkgSubmitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-md shadow-indigo-600/30 transition cursor-pointer mt-2">
+                    Publish Package to Live Website
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- B. Booking Details / Receipt Modal (Clean White) -->
+    <div id="bookingDetailsModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-slate-200">
+            <button id="closeBookingDetailsModal" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition cursor-pointer">
+                &times;
+            </button>
+
+            <div class="text-center mb-6 pb-4 border-b border-slate-100">
+                <span class="bg-indigo-50 text-indigo-700 text-[10px] font-mono uppercase px-2.5 py-1 rounded-full border border-indigo-200 font-bold">
+                    OFFICIAL VOYAGECRAFT RECEIPT
+                </span>
+                <h3 class="text-2xl font-black text-slate-900 mt-2 font-mono" id="detBookingId">BK000000</h3>
+                <span class="text-xs text-slate-400" id="detCreatedAt">Recorded in MongoDB</span>
+            </div>
+
+            <div class="space-y-3 text-xs mb-6 font-medium">
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                    <span class="text-slate-500">Customer Name:</span>
+                    <span id="detCustomerName" class="font-bold text-slate-900">Rajan</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                    <span class="text-slate-500">Contact Email:</span>
+                    <span id="detEmail" class="font-bold text-indigo-600 font-mono">user@gmail.com</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                    <span class="text-slate-500">Destination Package:</span>
+                    <span id="detPackage" class="font-bold text-slate-900">Manali Expedition</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                    <span class="text-slate-500">Travel Date:</span>
+                    <span id="detDate" class="font-bold text-amber-600 font-mono">2026-12-20</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                    <span class="text-slate-500">Total Travelers:</span>
+                    <span id="detTravelers" class="font-bold text-slate-900">2 Guests</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                    <span class="text-slate-500">Reservation Status:</span>
+                    <span id="detStatusBadge" class="font-bold text-emerald-600">Confirmed</span>
+                </div>
+                <div class="flex justify-between py-2 bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+                    <span class="text-slate-700 font-bold">Total Paid:</span>
+                    <span id="detTotalPrice" class="text-base font-black text-indigo-950">₹0</span>
+                </div>
+            </div>
+
+            <button onclick="window.print()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+                <i class="fa-solid fa-print"></i>
+                <span>Print Official Receipt</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= 4. DASHBOARD SCRIPTS ================= -->
+    <script>
+        const backendURL = '';
+        let allBookings = [];
+        let allPackages = [];
+        let activeStatusFilter = 'All';
+        let revenueChartInstance = null;
+        let categoryChartInstance = null;
+        let currentChartTimeframe = '7d';
+
+        // --- Toast System ---
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `bg-white border p-4 rounded-2xl shadow-xl pointer-events-auto flex items-start gap-3 transform translate-x-10 opacity-0 transition-all duration-300 ${
+                type === 'success' ? 'border-emerald-200 text-emerald-900' :
+                type === 'error' ? 'border-red-200 text-red-900' :
+                'border-indigo-200 text-indigo-900'
+            }`;
+
+            const iconClass = type === 'success' ? 'fa-circle-check text-emerald-500' :
+                             type === 'error' ? 'fa-triangle-exclamation text-red-500' :
+                             'fa-circle-info text-indigo-500';
+
+            toast.innerHTML = `
+                <div class="text-lg mt-0.5"><i class="fa-solid ${iconClass}"></i></div>
+                <div class="flex-1">
+                    <h5 class="text-xs font-bold uppercase tracking-wider">${title}</h5>
+                    <p class="text-xs text-slate-600 mt-0.5 leading-snug">${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 text-xs">&times;</button>
+            `;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove('translate-x-10', 'opacity-0'));
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // --- Sidebar Mobile Toggle ---
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const openSidebarBtn = document.getElementById('openSidebarBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+
+        function toggleSidebar(open) {
+            if (open) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarBackdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebarBackdrop.classList.add('hidden');
+            }
+        }
+
+        openSidebarBtn.addEventListener('click', () => toggleSidebar(true));
+        closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
+        sidebarBackdrop.addEventListener('click', () => toggleSidebar(false));
+
+        // --- Tab Navigation Logic ---
+        const pageHeading = document.getElementById('pageHeading');
+        const headingMap = {
+            'tab-overview': 'Dashboard Overview',
+            'tab-bookings': 'Bookings Management',
+            'tab-packages': 'Tour Packages (CRUD)',
+            'tab-customers': 'Customers & Travelers',
+            'tab-system': 'System Health & DB'
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active', 'bg-indigo-600', 'text-white', 'shadow-md');
+                link.classList.add('text-slate-600');
+            });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+
+            const activeBtn = document.querySelector(`.sidebar-link[data-tab="${tabId}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-indigo-600', 'text-white', 'shadow-md');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            const targetContent = document.getElementById(tabId);
+            if (targetContent) targetContent.classList.remove('hidden');
+
+            pageHeading.innerText = headingMap[tabId] || 'Dashboard';
+            toggleSidebar(false);
+        }
+
+        document.querySelectorAll('.sidebar-link').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+        });
+
+        // --- Core Data Loading ---
+        async function loadAdminData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('animate-spin');
+
+            try {
+                const [statsRes, bookingsRes, destsRes] = await Promise.all([
+                    fetch(`${backendURL}/api/admin/stats`),
+                    fetch(`${backendURL}/api/bookings`),
+                    fetch(`${backendURL}/api/destinations`)
+                ]);
+
+                const stats = await statsRes.json();
+                allBookings = await bookingsRes.json();
+                allPackages = await destsRes.json();
+
+                // Update KPIs
+                document.getElementById('kpiRevenue').innerText = `₹${(stats.totalRevenue || 0).toLocaleString('en-IN')}`;
+                document.getElementById('kpiBookings').innerText = stats.totalBookings || 0;
+                document.getElementById('kpiPackages').innerText = stats.totalDestinations || 0;
+                document.getElementById('kpiCustomers').innerText = stats.totalCustomers || 0;
+
+                // Update Sidebar Badges
+                document.getElementById('sideBookingsBadge').innerText = allBookings.length;
+                document.getElementById('sidePackagesBadge').innerText = allPackages.length;
+                document.getElementById('sideCustomersBadge').innerText = stats.totalCustomers || 0;
+
+                // Render Tables & Charts
+                renderRecentBookings(allBookings.slice(0, 5));
+                renderAllBookings();
+                renderPackagesCatalog();
+                renderCustomers();
+                renderCharts(stats);
+
+            } catch (err) {
+                console.error("Data fetch error:", err);
+                showToast("Connection Error", "Could not fetch data from MongoDB Atlas", "error");
+            } finally {
+                setTimeout(() => refreshIcon.classList.remove('animate-spin'), 400);
+            }
+        }
+
+        // --- Render Recent Bookings Table ---
+        function renderRecentBookings(list) {
+            const tbody = document.getElementById('recentBookingsTbody');
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No bookings yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map(b => `
+                <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="openBookingDetails('${b._id}')">
+                    <td class="py-3 px-3 font-mono font-bold text-indigo-600">${b.bookingId}</td>
+                    <td class="py-3 px-3 text-slate-900 font-semibold">${b.customerName}</td>
+                    <td class="py-3 px-3 text-slate-600 font-medium">${b.packageName}</td>
+                    <td class="py-3 px-3 text-slate-500 font-mono">${b.travelDate}</td>
+                    <td class="py-3 px-3 font-black text-slate-900">₹${(b.totalPrice || 0).toLocaleString('en-IN')}</td>
+                    <td class="py-3 px-3">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            b.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                            b.status === 'Pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                            'bg-red-50 text-red-700 border border-red-200'
+                        }">
+                            ${b.status || 'Confirmed'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- Render Full Bookings Table ---
+        function renderAllBookings() {
+            const tbody = document.getElementById('allBookingsTbody');
+            const searchVal = document.getElementById('bookingsSearchInput').value.toLowerCase().trim();
+
+            const filtered = allBookings.filter(b => {
+                const matchesStatus = activeStatusFilter === 'All' || (b.status || 'Confirmed') === activeStatusFilter;
+                const matchesSearch = !searchVal || 
+                    (b.bookingId && b.bookingId.toLowerCase().includes(searchVal)) ||
+                    (b.customerName && b.customerName.toLowerCase().includes(searchVal)) ||
+                    (b.packageName && b.packageName.toLowerCase().includes(searchVal));
+                return matchesStatus && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-slate-400 font-medium">No reservations match your criteria.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(b => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3.5 px-4 font-mono font-bold text-indigo-600">
+                        <button onclick="openBookingDetails('${b._id}')" class="hover:underline cursor-pointer">
+                            ${b.bookingId}
+                        </button>
+                    </td>
+                    <td class="py-3.5 px-4 font-semibold text-slate-900">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center text-[10px] font-bold border border-indigo-100">
+                                ${(b.customerName || 'T').charAt(0).toUpperCase()}
+                            </div>
+                            <span>${b.customerName}</span>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-700">${b.packageName}</td>
+                    <td class="py-3.5 px-4 text-slate-500 font-mono">${b.travelDate}</td>
+                    <td class="py-3.5 px-4 text-slate-700">${b.travelers} Guests</td>
+                    <td class="py-3.5 px-4 font-black text-slate-900">₹${(b.totalPrice || 0).toLocaleString('en-IN')}</td>
+                    <td class="py-3.5 px-4">
+                        <select onchange="updateBookingStatus('${b._id}', this.value)" class="bg-white border border-slate-200 text-xs font-bold rounded-lg px-2.5 py-1 text-slate-800 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm">
+                            <option value="Confirmed" ${b.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="Pending" ${b.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Cancelled" ${b.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                    <td class="py-3.5 px-4 text-right space-x-1.5">
+                        <button onclick="openBookingDetails('${b._id}')" class="text-slate-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer" title="View Details / Receipt">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <button onclick="deleteBooking('${b._id}', '${b.bookingId}')" class="text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Delete Booking">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Live Search & Status Filters
+        document.getElementById('bookingsSearchInput').addEventListener('input', renderAllBookings);
+
+        document.querySelectorAll('.booking-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.booking-filter-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-indigo-600', 'text-white', 'shadow-sm');
+                    b.classList.add('text-slate-600');
+                });
+                btn.classList.add('active', 'bg-indigo-600', 'text-white', 'shadow-sm');
+                btn.classList.remove('text-slate-600');
+                activeStatusFilter = btn.getAttribute('data-status');
+                renderAllBookings();
+            });
+        });
+
+        // Global Search Input
+        document.getElementById('globalSearchInput').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            document.getElementById('bookingsSearchInput').value = val;
+            switchTab('tab-bookings');
+            renderAllBookings();
+        });
+
+        // Status Update API Call
+        window.updateBookingStatus = async function(id, newStatus) {
+            try {
+                const res = await fetch(`${backendURL}/api/bookings/${id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                    showToast("Status Changed", `Booking marked as ${newStatus}`, "success");
+                    loadAdminData();
+                } else {
+                    showToast("Error", "Could not update status", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Network Error", "Server unreachable", "error");
+            }
+        };
+
+        // Delete Booking API Call
+        window.deleteBooking = async function(id, bookingId) {
+            if (!confirm(`Permanently delete booking ${bookingId} from database?`)) return;
+
+            try {
+                const res = await fetch(`${backendURL}/api/bookings/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast("Booking Deleted", `Booking ${bookingId} removed.`, "info");
+                    loadAdminData();
+                } else {
+                    showToast("Error", "Could not delete booking", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Network Error", "Server unreachable", "error");
+            }
+        };
+
+        // Booking Details Modal
+        window.openBookingDetails = function(id) {
+            const b = allBookings.find(item => item._id === id);
+            if (!b) return;
+
+            document.getElementById('detBookingId').innerText = b.bookingId;
+            document.getElementById('detCreatedAt').innerText = `Created: ${new Date(b.createdAt || Date.now()).toLocaleString()}`;
+            document.getElementById('detCustomerName').innerText = b.customerName;
+            document.getElementById('detEmail').innerText = b.customerEmail || 'traveler@gmail.com';
+            document.getElementById('detPackage').innerText = b.packageName;
+            document.getElementById('detDate').innerText = b.travelDate;
+            document.getElementById('detTravelers').innerText = `${b.travelers} Guests`;
+            document.getElementById('detTotalPrice').innerText = `₹${(b.totalPrice || 0).toLocaleString('en-IN')}`;
+            document.getElementById('detStatusBadge').innerText = b.status || 'Confirmed';
+
+            document.getElementById('bookingDetailsModal').classList.remove('hidden');
+            document.getElementById('bookingDetailsModal').classList.add('flex');
+        };
+
+        document.getElementById('closeBookingDetailsModal').addEventListener('click', () => {
+            document.getElementById('bookingDetailsModal').classList.add('hidden');
+            document.getElementById('bookingDetailsModal').classList.remove('flex');
+        });
+
+        // --- Render Packages Catalog (CRUD) ---
+        function renderPackagesCatalog() {
+            const container = document.getElementById('adminPackagesContainer');
+            if (allPackages.length === 0) {
+                container.innerHTML = `<p class="col-span-3 text-center py-10 text-slate-400">No destinations in catalog.</p>`;
+                return;
+            }
+
+            container.innerHTML = allPackages.map(p => `
+                <div class="clean-card rounded-3xl overflow-hidden flex flex-col justify-between group hover:shadow-xl hover:-translate-y-1 transition duration-300">
+                    <div>
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-indigo-900 shadow-sm">
+                                ${p.category}
+                            </span>
+                            <span class="absolute bottom-3.5 left-3.5 bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-white border border-white/20">
+                                <i class="fa-regular fa-clock mr-1 text-amber-400"></i> ${p.duration}
+                            </span>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="text-base font-black text-slate-900 group-hover:text-indigo-600 transition">${p.name}</h4>
+                            <p class="text-slate-500 text-xs mt-2 line-clamp-2 leading-relaxed">${p.highlights}</p>
+                        </div>
+                    </div>
+
+                    <div class="p-5 pt-0 border-t border-slate-100 mt-auto flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Base Price</span>
+                            <span class="text-lg font-black text-slate-900">₹${p.price.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openEditPackageModal('${p._id}')" class="text-xs font-bold text-indigo-700 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 transition cursor-pointer flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen-to-square text-[11px]"></i>
+                                <span>Edit</span>
+                            </button>
+                            <button onclick="deletePackage('${p._id}', '${p.name.replace(/'/g, "\\'")}')" class="text-xs font-bold text-red-700 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl border border-red-200 transition cursor-pointer flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- Create / Edit Package Modal Logic ---
+        const packageModal = document.getElementById('packageModal');
+        const packageModalTitle = document.getElementById('packageModalTitle');
+        const pkgImageInput = document.getElementById('pkgImage');
+        const pkgImagePreview = document.getElementById('pkgImagePreview');
+        const pkgImagePlaceholder = document.getElementById('pkgImagePlaceholder');
+
+        function updateImagePreview(url) {
+            if (url && url.startsWith('http')) {
+                pkgImagePreview.src = url;
+                pkgImagePreview.classList.remove('hidden');
+                pkgImagePlaceholder.classList.add('hidden');
+            } else {
+                pkgImagePreview.classList.add('hidden');
+                pkgImagePlaceholder.classList.remove('hidden');
+            }
+        }
+
+        pkgImageInput.addEventListener('input', (e) => updateImagePreview(e.target.value.trim()));
+
+        window.openCreatePackageModal = function() {
+            document.getElementById('packageForm').reset();
+            document.getElementById('editPackageId').value = '';
+            packageModalTitle.innerText = 'Create Tour Package';
+            document.getElementById('savePkgSubmitBtn').innerText = 'Publish Package to Live Website';
+            updateImagePreview('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80');
+            document.getElementById('pkgImage').value = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
+            packageModal.classList.remove('hidden');
+            packageModal.classList.add('flex');
+        };
+
+        window.openEditPackageModal = function(id) {
+            const p = allPackages.find(item => item._id === id);
+            if (!p) return;
+
+            document.getElementById('editPackageId').value = p._id;
+            document.getElementById('pkgName').value = p.name;
+            document.getElementById('pkgCategory').value = p.category;
+            document.getElementById('pkgDuration').value = p.duration;
+            document.getElementById('pkgPrice').value = p.price;
+            document.getElementById('pkgImage').value = p.image;
+            document.getElementById('pkgHighlights').value = p.highlights;
+
+            updateImagePreview(p.image);
+            packageModalTitle.innerText = 'Edit Tour Package';
+            document.getElementById('savePkgSubmitBtn').innerText = 'Update Package Changes';
+
+            packageModal.classList.remove('hidden');
+            packageModal.classList.add('flex');
+        };
+
+        document.getElementById('headerAddPackageBtn').addEventListener('click', openCreatePackageModal);
+        document.getElementById('closePackageModal').addEventListener('click', () => {
+            packageModal.classList.add('hidden');
+            packageModal.classList.remove('flex');
+        });
+
+        // Submit Create/Edit Package
+        document.getElementById('packageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('savePkgSubmitBtn');
+            submitBtn.disabled = true;
+
+            const editId = document.getElementById('editPackageId').value;
+            const isEdit = !!editId;
+
+            const payload = {
+                name: document.getElementById('pkgName').value.trim(),
+                category: document.getElementById('pkgCategory').value,
+                duration: document.getElementById('pkgDuration').value.trim(),
+                price: parseFloat(document.getElementById('pkgPrice').value),
+                image: document.getElementById('pkgImage').value.trim(),
+                highlights: document.getElementById('pkgHighlights').value.trim()
+            };
+
+            const url = isEdit ? `${backendURL}/api/destinations/${editId}` : `${backendURL}/api/destinations`;
+            const method = isEdit ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast(isEdit ? "Package Updated!" : "Package Created!", `"${payload.name}" updated on live website.`, "success");
+                    packageModal.classList.add('hidden');
+                    packageModal.classList.remove('flex');
+                    loadAdminData();
+                    switchTab('tab-packages');
+                } else {
+                    showToast("Error", "Failed to save package", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Network Error", "Could not reach backend", "error");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Delete Package
+        window.deletePackage = async function(id, name) {
+            if (!confirm(`Delete "${name}" from live catalog?`)) return;
+
+            try {
+                const res = await fetch(`${backendURL}/api/destinations/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast("Package Deleted", `"${name}" removed.`, "info");
+                    loadAdminData();
+                } else {
+                    showToast("Error", "Could not delete package", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Network Error", "Server unreachable", "error");
+            }
+        };
+
+        // --- Render Customers Table ---
+        function renderCustomers() {
+            const tbody = document.getElementById('customersTbody');
+            const customerMap = {};
+
+            allBookings.forEach(b => {
+                const name = (b.customerName || 'Anonymous Traveler').trim();
+                if (!customerMap[name]) {
+                    customerMap[name] = {
+                        name,
+                        email: b.customerEmail || `${name.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+                        tripsCount: 0,
+                        totalSpend: 0,
+                        latestDate: b.travelDate
+                    };
+                }
+                customerMap[name].tripsCount++;
+                customerMap[name].totalSpend += (b.totalPrice || 0);
+                if (b.travelDate > customerMap[name].latestDate) {
+                    customerMap[name].latestDate = b.travelDate;
+                }
+            });
+
+            const customers = Object.values(customerMap);
+            if (customers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-400">No customer records yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = customers.map(c => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3.5 px-4 font-bold text-slate-900">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-200">
+                                ${c.name.charAt(0).toUpperCase()}
+                            </div>
+                            <span>${c.name}</span>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-500 font-mono text-[11px]">${c.email}</td>
+                    <td class="py-3.5 px-4 font-bold text-indigo-600">${c.tripsCount} Trip(s)</td>
+                    <td class="py-3.5 px-4 font-black text-slate-900">₹${c.totalSpend.toLocaleString('en-IN')}</td>
+                    <td class="py-3.5 px-4 text-slate-500 font-mono">${c.latestDate}</td>
+                    <td class="py-3.5 px-4">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            c.totalSpend >= 35000 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600'
+                        }">
+                            ${c.totalSpend >= 35000 ? '👑 VIP Explorer' : '🌟 Voyager'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- Render Charts (Timeframe Switcher) ---
+        function updateChartTimeframe(tf) {
+            currentChartTimeframe = tf;
+            document.querySelectorAll('.chart-timeframe').forEach(b => {
+                b.classList.remove('active', 'bg-indigo-600', 'text-white', 'shadow-sm');
+                b.classList.add('text-slate-600');
+            });
+            event.target.classList.add('active', 'bg-indigo-600', 'text-white', 'shadow-sm');
+            event.target.classList.remove('text-slate-600');
+
+            if (revenueChartInstance) {
+                if (tf === '7d') {
+                    revenueChartInstance.data.labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    revenueChartInstance.data.datasets[0].data = [12000, 19000, 15000, 24000, 31000, 28000, 35000];
+                } else if (tf === '30d') {
+                    revenueChartInstance.data.labels = ['W1', 'W2', 'W3', 'W4'];
+                    revenueChartInstance.data.datasets[0].data = [45000, 68000, 89000, 120000];
+                } else {
+                    revenueChartInstance.data.labels = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    revenueChartInstance.data.datasets[0].data = [25000, 48000, 72000, 95000, 110000, 145000, 180000];
+                }
+                revenueChartInstance.update();
+            }
+        }
+
+        function renderCharts(stats) {
+            // Line Chart (Crisp Light Mode Colors)
+            const revCtx = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChartInstance) revenueChartInstance.destroy();
+
+            revenueChartInstance = new Chart(revCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Gross Revenue (₹)',
+                        data: [12000, 19000, 15000, 24000, 31000, 28000, (stats.totalRevenue || 35000)],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(0, 0, 0, 0.04)' }, ticks: { color: '#64748b' } },
+                        y: { grid: { color: 'rgba(0, 0, 0, 0.04)' }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+
+            // Category Donut Chart
+            const catCtx = document.getElementById('categoryChart').getContext('2d');
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            const cats = stats.categoryCounts || {};
+            categoryChartInstance = new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cats).length > 0 ? Object.keys(cats) : ['Mountains', 'Beaches', 'Heritage', 'International'],
+                    datasets: [{
+                        data: Object.values(cats).length > 0 ? Object.values(cats) : [2, 2, 1, 1],
+                        backgroundColor: ['#4f46e5', '#06b6d4', '#f59e0b', '#ec4899', '#10b981'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#475569', font: { size: 11, family: '"Plus Jakarta Sans"' } } }
+                    }
+                }
+            });
+        }
+
+        // --- Export CSV ---
+        document.getElementById('exportCsvBtn').addEventListener('click', () => {
+            if (allBookings.length === 0) {
+                showToast("No Data", "No bookings available to export.", "info");
+                return;
+            }
+
+            const headers = ["Booking ID", "Customer Name", "Customer Email", "Package Name", "Travel Date", "Travelers", "Total Price (INR)", "Status", "Created At"];
+            const rows = allBookings.map(b => [
+                b.bookingId,
+                `"${(b.customerName || '').replace(/"/g, '""')}"`,
+                b.customerEmail || 'traveler@gmail.com',
+                `"${(b.packageName || '').replace(/"/g, '""')}"`,
+                b.travelDate,
+                b.travelers,
+                b.totalPrice,
+                b.status || 'Confirmed',
+                b.createdAt || ''
+            ]);
+
+            const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `voyagecraft_bookings_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Export Ready", "Bookings CSV exported successfully!", "success");
+        });
+
+        // Refresh Data Click
+        document.getElementById('refreshDataBtn').addEventListener('click', () => {
+            loadAdminData();
+            showToast("Synced", "Dashboard synchronized with MongoDB Atlas.", "info");
+        });
+
+        // Initial Load
+        loadAdminData();
+    </script>
+</body>
+</html>
