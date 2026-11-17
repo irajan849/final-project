@@ -3,388 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wanderlust India & Beyond - Full-Stack Travel Platform</title>
+    <title>VoyageCraft | Wanderlust India & Beyond</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .hero-bg {
-            background-image: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-gray-50 text-gray-800 font-sans">
 
     <!-- Navbar -->
-    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                        <i class="fas fa-compass"></i>
-                    </div>
-                    <span class="font-extrabold text-xl tracking-tight text-slate-900">Voyage<span class="text-indigo-600">Craft</span></span>
-                </div>
-                <div class="hidden md:flex space-x-8 text-sm font-semibold text-slate-600">
-                    <a href="#destinations" class="hover:text-indigo-600 transition">Destinations</a>
-                    <a href="#itinerary" class="hover:text-indigo-600 transition">Itinerary Planner</a>
-                    <a href="#bookings" onclick="openMyBookings()" class="hover:text-indigo-600 transition flex items-center gap-1.5">
-                        My Bookings <span id="booking-count" class="bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-                    </a>
-                </div>
-                <button onclick="openBookingModal('Custom Package', 24999)" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition">
-                    Plan a Trip
-                </button>
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-compass text-indigo-600 text-2xl"></i>
+                <span class="text-xl font-bold tracking-wide text-indigo-900">VoyageCraft</span>
+            </div>
+            <div class="hidden md:flex space-x-6 font-medium text-gray-600">
+                <a href="#destinations" class="hover:text-indigo-600 transition">Destinations</a>
+                <a href="#benefits" class="hover:text-indigo-600 transition">Why Us</a>
+                <a href="#planner" class="hover:text-indigo-600 transition">Itinerary Planner</a>
+            </div>
+            <div>
+                <a href="#planner" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium shadow transition">Plan a Trip</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="hero-bg text-white py-24 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto text-center">
-            <span class="inline-block bg-white/15 backdrop-blur-sm border border-white/20 text-indigo-100 text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full mb-5">
-                Explore Curated Journeys in INR (₹)
-            </span>
-            <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-                Discover Your Next Unforgettable Escape
-            </h1>
-            <p class="text-lg sm:text-xl text-slate-200 mb-10 max-w-2xl mx-auto">
-                Compare handpicked destinations, customize day-by-day itineraries, and lock in transparent Indian Rupee pricing with zero hidden fees.
-            </p>
-
-            <!-- Interactive Search Bar -->
-            <div class="bg-white p-3 rounded-2xl shadow-xl max-w-3xl mx-auto flex flex-col sm:flex-row gap-3 text-slate-800">
-                <div class="flex-1 flex items-center px-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <i class="fas fa-search text-slate-400 mr-3"></i>
-                    <input type="text" id="searchInput" oninput="filterDestinations()" placeholder="Search Goa, Manali, Bali, Ladakh..." class="w-full py-3 bg-transparent focus:outline-none text-sm font-medium">
-                </div>
-                <div class="sm:w-48 flex items-center px-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <i class="fas fa-filter text-slate-400 mr-2"></i>
-                    <select id="categoryFilter" onchange="filterDestinations()" class="w-full py-3 bg-transparent focus:outline-none text-sm font-medium text-slate-700">
-                        <option value="All">All Categories</option>
-                        <option value="Mountains">Mountains</option>
-                        <option value="Beaches">Beaches</option>
-                        <option value="International">International</option>
-                        <option value="Heritage">Heritage</option>
-                    </select>
-                </div>
-                <button onclick="filterDestinations()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-7 py-3 rounded-xl transition shadow-md">
-                    Explore
-                </button>
+    <!-- Hero Section with Special Offer Banner -->
+    <header class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white py-16 px-4 text-center relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10">
+            <span class="bg-amber-400 text-indigo-950 text-xs font-extrabold uppercase px-3 py-1 rounded-full inline-block mb-4 shadow">🔥 Limited Period Offer: Flat 20% OFF on First Booking! Use Code: VOYAGE20</span>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Discover the Unexplored Wonders of India & Beyond</h1>
+            <p class="text-lg text-indigo-200 mb-8 max-w-2xl mx-auto">Experience seamless travel planning, handpicked luxury stays, verified local guides, and zero hidden charges.</p>
+            <div class="flex justify-center gap-4">
+                <a href="#destinations" class="bg-white text-indigo-900 font-bold px-6 py-3 rounded-lg shadow-lg hover:bg-indigo-50 transition">Explore Packages</a>
+                <a href="#planner" class="border border-white text-white font-bold px-6 py-3 rounded-lg hover:bg-white/10 transition">Custom Itinerary</a>
             </div>
         </div>
     </header>
 
-    <!-- Destinations Section -->
-    <section id="destinations" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
-            <div>
-                <h2 class="text-3xl font-extrabold text-slate-900">Popular Tour Packages</h2>
-                <p class="text-slate-500 mt-1">All prices inclusive of stays, transfers, and guided sightseeing in Indian Rupees.</p>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-                <span class="text-slate-500 font-medium">Max Budget:</span>
-                <select id="priceFilter" onchange="filterDestinations()" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 font-semibold text-slate-700 focus:outline-none focus:border-indigo-500">
-                    <option value="999999">Any Budget</option>
-                    <option value="20000">Under ₹20,000</option>
-                    <option value="40000">Under ₹40,000</option>
-                    <option value="75000">Under ₹75,000</option>
-                </select>
-            </div>
+    <!-- Why Choose Us -->
+    <section id="benefits" class="max-w-7xl mx-auto px-4 py-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900">Why Travel With VoyageCraft?</h2>
+            <p class="text-gray-500 mt-2">We bring unmatched uniqueness, safety, and value to your dream vacations.</p>
         </div>
-
-        <div id="destinationsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="col-span-full text-center py-12 text-slate-500">Loading destinations from database...</div>
-        </div>
-    </section>
-
-    <!-- Interactive Itinerary Builder -->
-    <section id="itinerary" class="bg-white border-y border-slate-200 py-16 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-10">
-                <span class="text-indigo-600 font-bold text-xs uppercase tracking-wider">Smart Trip Estimator</span>
-                <h2 class="text-3xl font-extrabold text-slate-900 mt-1">Build Your Custom Itinerary</h2>
-                <p class="text-slate-500 mt-2">Select your preferences to calculate an instant package estimate in ₹.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-xl mb-4 font-bold"><i class="fa-solid fa-tag"></i></div>
+                <h3 class="text-xl font-bold mb-2">Best Price Guarantee & Offers</h3>
+                <p class="text-gray-600 text-sm">Enjoy seasonal festive discounts, referral bonuses, and zero-markup transparent pricing across all packages.</p>
             </div>
-
-            <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Duration (Days)</label>
-                    <input type="range" id="daysRange" min="2" max="14" value="5" oninput="updateEstimate()" class="w-full accent-indigo-600">
-                    <div class="flex justify-between text-sm font-bold text-slate-700 mt-1">
-                        <span>2 Days</span>
-                        <span id="daysLabel" class="text-indigo-600">5 Days</span>
-                        <span>14 Days</span>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Stay Tier</label>
-                    <select id="tierSelect" onchange="updateEstimate()" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800">
-                        <option value="3500">Standard Boutique (₹3,500/day)</option>
-                        <option value="6500" selected>Premium 4-Star Resort (₹6,500/day)</option>
-                        <option value="12000">Luxury 5-Star Villa (₹12,000/day)</option>
-                    </select>
-                </div>
-
-                <div class="bg-indigo-600 text-white p-6 rounded-xl text-center shadow-md">
-                    <span class="text-xs uppercase tracking-wider text-indigo-200 font-semibold">Estimated Total / Person</span>
-                    <div id="estimatedCost" class="text-3xl font-extrabold my-1">₹32,500</div>
-                    <button onclick="bookCustomEstimate()" class="mt-3 w-full bg-white text-indigo-700 hover:bg-indigo-50 font-bold py-2 px-4 rounded-lg text-sm transition">
-                        Book This Estimate
-                    </button>
-                </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-xl mb-4 font-bold"><i class="fa-solid fa-map-location-dot"></i></div>
+                <h3 class="text-xl font-bold mb-2">Smart Custom Itineraries</h3>
+                <p class="text-gray-600 text-sm">Tailor your trip day-by-day according to your precise budget, preferences, and travel duration instantly.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-xl mb-4 font-bold"><i class="fa-solid fa-headset"></i></div>
+                <h3 class="text-xl font-bold mb-2">24/7 Concierge & On-Trip Support</h3>
+                <p class="text-gray-600 text-sm">Dedicated travel experts are available round the clock to handle emergencies, changes, and local assistance.</p>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-10 px-4 text-center text-sm">
-        <p class="font-semibold text-slate-200 mb-1">VoyageCraft Travel Platform</p>
-        <p>All pricing displayed in Indian Rupees (₹ INR). Powered by Node.js & MongoDB.</p>
-    </footer>
+    <!-- Tour Packages Section (Fetched dynamically from Database API) -->
+    <section id="destinations" class="bg-gray-100 py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">Popular Tour Packages</h2>
+                    <p class="text-gray-600">Fetched directly from MongoDB Atlas database.</p>
+                </div>
+            </div>
+
+            <!-- Packages Grid -->
+            <div id="packagesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Loading State -->
+                <div class="col-span-3 text-center py-10 text-gray-500 font-medium">Loading packages from database...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom Itinerary Planner -->
+    <section id="planner" class="max-w-4xl mx-auto px-4 py-16">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden p-8">
+            <div class="text-center mb-8">
+                <span class="text-indigo-600 font-semibold text-xs uppercase tracking-wider bg-indigo-50 px-3 py-1 rounded-full">Smart Trip Estimator</span>
+                <h2 class="text-3xl font-bold mt-2 text-gray-900">Build Your Custom Itinerary</h2>
+                <p class="text-gray-500 text-sm mt-1">Select your preferences to calculate an instant package estimate.</p>
+            </div>
+            <form id="itineraryForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Trip Package / Custom Route</label>
+                    <input type="text" id="customDest" value="Custom Mountain Expedition" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Travelers Count</label>
+                    <input type="number" id="customTravelers" min="1" max="10" value="2" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Total Estimated Price (₹)</label>
+                    <input type="number" id="customPrice" value="25000" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button type="button" id="openBookingModalBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow transition">Proceed to Book</button>
+                </div>
+            </form>
+        </div>
+    </section>
 
     <!-- Booking Modal -->
-    <div id="bookingModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
-            <button onclick="closeBookingModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-            <h3 class="text-2xl font-extrabold text-slate-900 mb-1">Confirm Your Booking</h3>
-            <p id="modalPackageName" class="text-indigo-600 font-bold text-sm mb-5">Package Name</p>
-
-            <form id="bookingForm" onsubmit="submitBooking(event)" class="space-y-4">
+    <div id="bookingModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button id="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            <h3 class="text-2xl font-bold text-gray-900 mb-1">Confirm Your Booking</h3>
+            <p id="modalPackageTitle" class="text-sm text-indigo-600 font-semibold mb-6">Package</p>
+            
+            <form id="bookingForm" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Full Name</label>
-                    <input type="text" id="custName" required placeholder="e.g., Rajandeep Kaur" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                    <input type="text" id="customerName" required placeholder="Enter your full name" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Travel Date</label>
-                        <input type="date" id="travelDate" required class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Travel Date</label>
+                        <input type="date" id="travelDate" required class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Travelers</label>
-                        <input type="number" id="travelersCount" min="1" max="15" value="2" oninput="updateModalTotal()" required class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Travelers</label>
+                        <input type="number" id="travelers" min="1" value="2" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center">
-                    <span class="text-sm font-semibold text-slate-600">Total Payable:</span>
-                    <span id="modalTotalPrice" class="text-xl font-extrabold text-slate-900">₹0</span>
+                <div class="bg-gray-50 p-3 rounded-lg flex justify-between items-center text-sm font-medium">
+                    <span class="text-gray-600">Total Payable:</span>
+                    <span id="modalTotalPrice" class="text-xl font-black text-indigo-900">₹0</span>
                 </div>
-                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition">
-                    Complete Reservation
-                </button>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition">Save Booking to MongoDB</button>
             </form>
         </div>
     </div>
 
-    <!-- My Bookings Modal -->
-    <div id="myBookingsModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[85vh] overflow-y-auto">
-            <button onclick="closeMyBookings()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-            <h3 class="text-2xl font-extrabold text-slate-900 mb-4">Your Saved Bookings (Database)</h3>
-            <div id="savedBookingsList" class="space-y-3">
-                <p class="text-slate-500 text-sm">Loading bookings...</p>
+    <!-- Footer with Special Offers & Airport Perks -->
+    <footer class="bg-gray-900 text-gray-400 py-12 px-4 mt-20">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+                <div class="flex items-center space-x-2 mb-4">
+                    <i class="fa-solid fa-compass text-indigo-400 text-2xl"></i>
+                    <span class="text-xl font-bold text-white">VoyageCraft</span>
+                </div>
+                <p class="text-sm">Your trusted companion for exploring India and exotic global destinations with comfort and transparency.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-3">Special Offers & Perks</h4>
+                <ul class="text-sm space-y-2">
+                    <li><span class="text-amber-400 font-bold">VOYAGE20</span> - 20% off on first booking</li>
+                    <li>Free airport transfers on bookings above ₹50,000</li>
+                    <li>Complimentary travel insurance included</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-3">Quick Links</h4>
+                <ul class="text-sm space-y-2">
+                    <li><a href="#destinations" class="hover:text-white transition">Tour Packages</a></li>
+                    <li><a href="#planner" class="hover:text-white transition">Itinerary Estimator</a></li>
+                    <li><a href="#benefits" class="hover:text-white transition">Why Choose Us</a></li>
+                </ul>
             </div>
         </div>
-    </div>
+        <div class="max-w-7xl mx-auto border-t border-gray-800 pt-6 text-center text-xs">
+            &copy; 2026 VoyageCraft. All rights reserved. Powered by Node.js, Express & MongoDB.
+        </div>
+    </footer>
 
+    <!-- Frontend Script -->
     <script>
-        let destinations = [];
-        let bookings = [];
-        let currentUnitPrice = 0;
-        let currentPackageTitle = "";
+        const backendURL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+        let selectedPackageName = "";
+        let selectedPackagePrice = 0;
 
-        function formatINR(amount) {
-            return '₹' + Number(amount).toLocaleString('en-IN');
-        }
-
-        // --- Backend API Calls ---
-
+        // Fetch Destinations from Backend API
         async function fetchDestinations() {
             try {
-                const res = await fetch('/api/destinations');
-                destinations = await res.json();
-                renderDestinations(destinations);
+                const res = await fetch(`${backendURL}/api/destinations`);
+                const destinations = await res.json();
+                
+                const container = document.getElementById('packagesContainer');
+                container.innerHTML = destinations.map(p => `
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition flex flex-col justify-between">
+                        <div>
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                                <span class="absolute top-3 right-3 bg-white/90 px-2.5 py-1 rounded-full text-xs font-bold text-indigo-900 shadow">${p.category}</span>
+                            </div>
+                            <div class="p-5">
+                                <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">${p.duration}</span>
+                                <h3 class="text-xl font-bold text-gray-900 mt-2 mb-1">${p.name}</h3>
+                                <p class="text-gray-600 text-sm mb-4">${p.highlights}</p>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0 flex items-center justify-between border-t border-gray-100 mt-auto">
+                            <div>
+                                <span class="text-xs text-gray-400 block">Starting from</span>
+                                <span class="text-xl font-black text-indigo-900">₹${p.price.toLocaleString('en-IN')}</span>
+                            </div>
+                            <button onclick="openModal('${p.name}', ${p.price})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition">Book Now</button>
+                        </div>
+                    </div>
+                `).join('');
             } catch (err) {
-                console.error('Error loading destinations:', err);
-                document.getElementById('destinationsGrid').innerHTML = `<div class="col-span-full text-center py-12 text-red-500">Failed to connect to backend server.</div>`;
+                console.error(err);
+                document.getElementById('packagesContainer').innerHTML = `<p class="col-span-3 text-center text-red-500">Failed to load packages from server.</p>`;
             }
         }
 
-        async function fetchBookings() {
-            try {
-                const res = await fetch('/api/bookings');
-                bookings = await res.json();
-                document.getElementById('booking-count').innerText = bookings.length;
-                renderBookingsList();
-            } catch (err) {
-                console.error('Error loading bookings:', err);
-            }
+        fetchDestinations();
+
+        // Modal Logic
+        const modal = document.getElementById('bookingModal');
+        const modalTitle = document.getElementById('modalPackageTitle');
+        const modalTotalPrice = document.getElementById('modalTotalPrice');
+
+        function openModal(name, price) {
+            selectedPackageName = name;
+            selectedPackagePrice = price;
+            modalTitle.innerText = name;
+            modalTotalPrice.innerText = `₹${price.toLocaleString('en-IN')}`;
+            document.getElementById('travelers').value = 2;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
-        async function submitBooking(e) {
+        document.getElementById('openBookingModalBtn').addEventListener('click', () => {
+            const name = document.getElementById('customDest').value;
+            const price = parseFloat(document.getElementById('customPrice').value) || 10000;
+            openModal(name, price);
+        });
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        });
+
+        // Submit Booking to MongoDB API
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerText = 'Saving to Database...';
-            btn.disabled = true;
-
-            const travelers = parseInt(document.getElementById('travelersCount').value);
             const payload = {
-                packageName: currentPackageTitle,
-                customerName: document.getElementById('custName').value,
+                packageName: selectedPackageName,
+                customerName: document.getElementById('customerName').value,
                 travelDate: document.getElementById('travelDate').value,
-                travelers: travelers,
-                totalPrice: currentUnitPrice * travelers
+                travelers: parseInt(document.getElementById('travelers').value),
+                totalPrice: selectedPackagePrice
             };
 
             try {
-                const res = await fetch('/api/bookings', {
+                const res = await fetch(`${backendURL}/api/bookings`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
-                if (res.ok) {
+                const data = await res.json();
+                if(res.ok) {
+                    alert('🎉 Booking submitted successfully ! Booking ID: ' + data.bookingId);
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
                     document.getElementById('bookingForm').reset();
-                    closeBookingModal();
-                    await fetchBookings();
-                    openMyBookings();
                 } else {
-                    alert('Booking failed! Please try again.');
+                    alert('Booking failed: ' + (data.error || 'Server error'));
                 }
             } catch (err) {
                 console.error(err);
-                alert('Server connection error!');
-            } finally {
-                btn.innerText = 'Complete Reservation';
-                btn.disabled = false;
+                alert('⚠️ Server connection error.');
             }
-        }
-
-        // --- UI Rendering Functions ---
-
-        function renderDestinations(list) {
-            const grid = document.getElementById('destinationsGrid');
-            if (!list || list.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 font-medium">No destinations match your filters.</div>`;
-                return;
-            }
-            grid.innerHTML = list.map(dest => `
-                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-200 transition duration-300 flex flex-col">
-                    <div class="relative h-52">
-                        <img src="${dest.image}" alt="${dest.name}" class="w-full h-full object-cover">
-                        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                            ${dest.category}
-                        </span>
-                        <span class="absolute bottom-3 right-3 bg-slate-900/80 text-white text-xs font-semibold px-2.5 py-1 rounded-lg">
-                            ${dest.duration}
-                        </span>
-                    </div>
-                    <div class="p-6 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">${dest.name}</h3>
-                            <p class="text-slate-600 text-sm leading-relaxed mb-4">${dest.highlights}</p>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
-                            <div>
-                                <span class="text-xs text-slate-400 block font-medium">Starting from</span>
-                                <span class="text-2xl font-extrabold text-indigo-600">${formatINR(dest.price)}</span>
-                                <span class="text-xs text-slate-400">/person</span>
-                            </div>
-                            <button onclick="openBookingModal('${dest.name}', ${dest.price})" class="bg-slate-900 hover:bg-indigo-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition">
-                                Book Now
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function filterDestinations() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const category = document.getElementById('categoryFilter').value;
-            const maxPrice = parseInt(document.getElementById('priceFilter').value);
-
-            const filtered = destinations.filter(d => {
-                const matchesQuery = d.name.toLowerCase().includes(query) || d.highlights.toLowerCase().includes(query);
-                const matchesCat = category === 'All' || d.category === category;
-                const matchesPrice = d.price <= maxPrice;
-                return matchesQuery && matchesCat && matchesPrice;
-            });
-            renderDestinations(filtered);
-        }
-
-        function updateEstimate() {
-            const days = parseInt(document.getElementById('daysRange').value);
-            const rate = parseInt(document.getElementById('tierSelect').value);
-            document.getElementById('daysLabel').innerText = `${days} Days`;
-            document.getElementById('estimatedCost').innerText = formatINR(days * rate);
-        }
-
-        function bookCustomEstimate() {
-            const days = parseInt(document.getElementById('daysRange').value);
-            const rate = parseInt(document.getElementById('tierSelect').value);
-            openBookingModal(`Custom ${days}-Day Package`, days * rate);
-        }
-
-        function openBookingModal(title, unitPrice) {
-            currentPackageTitle = title;
-            currentUnitPrice = unitPrice;
-            document.getElementById('modalPackageName').innerText = `${title} (${formatINR(unitPrice)} / person)`;
-            document.getElementById('travelersCount').value = 2;
-            updateModalTotal();
-            document.getElementById('bookingModal').classList.remove('hidden');
-        }
-
-        function closeBookingModal() {
-            document.getElementById('bookingModal').classList.add('hidden');
-        }
-
-        function updateModalTotal() {
-            const count = parseInt(document.getElementById('travelersCount').value) || 1;
-            document.getElementById('modalTotalPrice').innerText = formatINR(currentUnitPrice * count);
-        }
-
-        function renderBookingsList() {
-            const listEl = document.getElementById('savedBookingsList');
-            if (bookings.length === 0) {
-                listEl.innerHTML = `<p class="text-slate-500 text-sm">No bookings found in database yet. Book your first trip!</p>`;
-            } else {
-                listEl.innerHTML = bookings.map(b => `
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
-                        <div>
-                            <span class="text-xs font-bold text-indigo-600">${b.bookingId}</span>
-                            <h4 class="font-bold text-slate-900">${b.packageName}</h4>
-                            <p class="text-xs text-slate-500">${b.customerName} • ${b.travelDate} • ${b.travelers} Traveler(s)</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-extrabold text-slate-900 block">${formatINR(b.totalPrice)}</span>
-                            <span class="text-[11px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">Confirmed</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function openMyBookings() {
-            fetchBookings();
-            document.getElementById('myBookingsModal').classList.remove('hidden');
-        }
-
-        function closeMyBookings() {
-            document.getElementById('myBookingsModal').classList.add('hidden');
-        }
-
-        // Start App
-        fetchDestinations();
-        fetchBookings();
+        });
     </script>
 </body>
 </html>

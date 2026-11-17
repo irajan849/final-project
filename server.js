@@ -4,6 +4,11 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// --- DNS BYPASS FIX FOR ECONNREFUSED QUERYSRV ---
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+// ----------------------------------------------
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -92,5 +97,5 @@ app.get('/api/bookings', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Full-Stack App running at http://localhost:${PORT}`));
